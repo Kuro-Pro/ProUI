@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ProTitle">
+        <attr name="backgroundRes" format="reference" />
+
+        <attr name="canBack" format="boolean" />
+        <attr name="leftText" format="string" />
+        <attr name="leftTextSize" format="dimension" />
+        <attr name="leftTextColor" format="color" />
+        <attr name="leftImgRes" format="reference" />
+
+        <attr name="needLoading" format="boolean" />
+        <attr name="titleColor" format="color" />
+        <attr name="titleText" format="string" />
+        <attr name="titleTextSize" format="dimension" />
+
+        <attr name="useDoubleMenu" format="boolean" />
+        <attr name="menuBtnImgRes" format="reference" />
+        <attr name="menuText" format="string" />
+        <attr name="menuTextSize" format="dimension" />
+        <attr name="menuTextColor" format="color" />
+        <attr name="menuImgRes" format="reference" />
+    </declare-styleable>
+</resources>

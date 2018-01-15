@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -22,10 +23,6 @@ import android.widget.TextView;
  */
 public class ProTitle extends ConstraintLayout {
 
-    /**
-     * 控件背景资源
-     */
-    private int backgroundResource;
     /**
      * 双击手势
      */
@@ -155,8 +152,12 @@ public class ProTitle extends ConstraintLayout {
                 return false;
             }
         });
+        initView(attrs);
+    }
+
+    private void initView(AttributeSet attrs) {
+        Context context = getContext();
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ProTitle, 0, 0);
-        backgroundResource = ta.getResourceId(R.styleable.ProTitle_backgroundRes, R.color.blue);
 
         canBack = ta.getBoolean(R.styleable.ProTitle_canBack, false);
         leftText = ta.getString(R.styleable.ProTitle_leftText);
@@ -176,10 +177,6 @@ public class ProTitle extends ConstraintLayout {
         menuTextColor = ta.getColor(R.styleable.ProTitle_menuTextColor, ContextCompat.getColor(context, R.color.white));
         menuImgRes = ta.getResourceId(R.styleable.ProTitle_menuImgRes, R.mipmap.ic_more);
         ta.recycle();
-        initView();
-    }
-
-    private void initView() {
         View rootView = LayoutInflater.from(getContext()).inflate(R.layout.pro_title, this);
         rootView.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -191,7 +188,7 @@ public class ProTitle extends ConstraintLayout {
                 return true;
             }
         });
-        rootView.setBackgroundResource(backgroundResource);
+        rootView.setBackgroundColor(0xFF0000FF);
         initLeftButton();
         initTitle();
         initMenuButton();
@@ -205,23 +202,9 @@ public class ProTitle extends ConstraintLayout {
         leftButton.setText(leftText);
         leftButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, leftTextSize);
         leftButton.setTextColor(leftTextColor);
-        Drawable drawable = ContextCompat.getDrawable(getContext(), leftImgRes);
-        if (drawable != null) {
-            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        }
-        leftButton.setCompoundDrawables(drawable, null, null, null);
-        leftButton.setVisibility(canBack ? VISIBLE : INVISIBLE);
-        if (canBack) {
-            leftButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = getContext();
-                    if (context instanceof Activity) {
-                        ((Activity) context).finish();
-                    }
-                }
-            });
-        }
+        setLeftText(leftText);
+        setCanBack(canBack);
+        setLeftImgRes(leftImgRes);
     }
 
     /**
@@ -229,7 +212,8 @@ public class ProTitle extends ConstraintLayout {
      */
     private void initTitle() {
         loading = findViewById(R.id.progress);
-        loading.setVisibility(needLoading ? VISIBLE : GONE);
+        setNeedLoading(needLoading);
+        showLoading();
         title = findViewById(R.id.title);
         title.setText(titleText);
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleTextSize);
@@ -241,23 +225,139 @@ public class ProTitle extends ConstraintLayout {
      */
     private void initMenuButton() {
         menuButton = findViewById(R.id.button);
-        menuButton.setVisibility(useDoubleMenu ? VISIBLE : GONE);
-        menuButton.setImageResource(menuBtnImgRes);
+        setUseDoubleMenu(useDoubleMenu);
+        setMenuBtnImgRes(menuBtnImgRes);
         menu = findViewById(R.id.menu);
+        menu.setVisibility(TextUtils.isEmpty(menuText) && menuImgRes == 0 ? GONE : VISIBLE);
         menu.setText(menuText);
         menu.setTextSize(TypedValue.COMPLEX_UNIT_PX, menuTextSize);
         menu.setTextColor(menuTextColor);
-        Drawable drawable = ContextCompat.getDrawable(getContext(), menuImgRes);
-        if (drawable != null) {
-            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        }
-        menu.setCompoundDrawables(null, null, drawable, null);
+        setMenuImgRes(menuImgRes);
     }
 
     private int getSpTextSize(TypedArray typedArray, int index, int defaultValue) {
         return typedArray.getDimensionPixelSize(index,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
                         defaultValue, getResources().getDisplayMetrics()));
+    }
+
+    //公共方法
+
+    public void setLeftBtnOnClickListener(OnClickListener listener) {
+        leftButton.setOnClickListener(listener);
+    }
+
+    public void showLoading() {
+        if (loading == null || !needLoading) {
+            return;
+        }
+        if (!loading.isShown()) {
+            loading.show();
+        }
+    }
+
+    public void hideLoading() {
+        if (loading == null) {
+            return;
+        }
+        if (loading.isShown()) {
+            loading.hide();
+        }
+    }
+
+    public void setCanBack(boolean canBack) {
+        this.canBack = canBack;
+        OnClickListener listener = !this.canBack ? null : new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = getContext();
+                if (context instanceof Activity) {
+                    ((Activity) context).finish();
+                }
+            }
+        };
+        leftButton.setOnClickListener(listener);
+    }
+
+    public boolean isCanBack() {
+        return canBack;
+    }
+
+    public void setLeftText(CharSequence text) {
+        leftButton.setText(text);
+    }
+
+    public void setLeftTextSize(int leftTextSize) {
+        leftButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, leftTextSize);
+    }
+
+    public void setLeftTextColor(int leftTextColor) {
+        leftButton.setTextColor(leftTextColor);
+    }
+
+    public void setLeftImgRes(int leftImgRes) {
+        Drawable drawable = ContextCompat.getDrawable(getContext(), leftImgRes);
+        if (drawable != null) {
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+        }
+        leftButton.setCompoundDrawables(drawable, null, null, null);
+    }
+
+    public void setNeedLoading(boolean needLoading) {
+        this.needLoading = needLoading;
+        loading.setVisibility(needLoading ? VISIBLE : GONE);
+    }
+
+    public boolean isNeedLoading() {
+        return needLoading;
+    }
+
+    public void setTitle(CharSequence text) {
+        title.setText(text);
+    }
+
+    public void setTitleTextColor(int titleTextColor) {
+        title.setTextColor(titleTextColor);
+    }
+
+    public void setTitleTextSize(int titleTextSize) {
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, titleTextSize);
+    }
+
+    public void setUseDoubleMenu(boolean useDoubleMenu) {
+        this.useDoubleMenu = useDoubleMenu;
+        menuButton.setVisibility(useDoubleMenu ? VISIBLE : GONE);
+    }
+
+    public boolean isUseDoubleMenu() {
+        return useDoubleMenu;
+    }
+
+    public void setMenuBtnImgRes(int menuBtnImgRes) {
+        if (menuBtnImgRes == 0) {
+            return;
+        }
+        menuButton.setImageResource(menuBtnImgRes);
+    }
+
+    public void setMenuText(CharSequence text) {
+        menu.setText(text);
+    }
+
+    public void setMenuTextSize(int menuTextSize) {
+        menu.setTextSize(TypedValue.COMPLEX_UNIT_SP, menuTextSize);
+    }
+
+    public void setMenuTextColor(int menuTextColor) {
+        menu.setTextColor(menuTextColor);
+    }
+
+    public void setMenuImgRes(int menuImgRes) {
+        Drawable drawable = ContextCompat.getDrawable(getContext(), menuImgRes);
+        if (drawable != null) {
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+        }
+        menu.setCompoundDrawables(null, null, drawable, null);
     }
 
     /**

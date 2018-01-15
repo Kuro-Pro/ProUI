@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ProTitle">
-        <attr name="backgroundRes" format="reference" />
-
         <attr name="canBack" format="boolean" />
         <attr name="leftText" format="string" />
         <attr name="leftTextSize" format="dimension" />

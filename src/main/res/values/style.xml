@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="fade_from_top_to_bottom">
+
+        <item name="android:windowEnterAnimation">@anim/pro_fade_from_top_to_bottom_enter</item>
+        <item name="android:windowExitAnimation">@anim/pro_fade_from_top_to_bottom_exit</item>
+    </style>
+
+</resources>

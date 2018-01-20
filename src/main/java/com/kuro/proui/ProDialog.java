@@ -30,6 +30,7 @@ public abstract class ProDialog extends DialogFragment {
     private int offsetY;
     private int mGravity;
     private int animationResId;
+    private boolean mIsDropdown;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +72,9 @@ public abstract class ProDialog extends DialogFragment {
      * @param view 根布局
      */
     private void computePosition(View view) {
+        if (!mIsDropdown) {
+            return;
+        }
         switch (mGravity) {
             case Gravity.CENTER:
                 x = offsetX - view.getMeasuredWidth() / 2;
@@ -90,8 +94,8 @@ public abstract class ProDialog extends DialogFragment {
         }
     }
 
-    public void showAsDropDown(AppCompatActivity activity, View anchorView, String tag, int gravity) {
-        mGravity = gravity;
+    public void showAtLocation(AppCompatActivity activity, String tag, int offsetX, int offsetY) {
+        mIsDropdown = false;
         if (activity == null || isShowing()) {
             return;
         }
@@ -102,8 +106,30 @@ public abstract class ProDialog extends DialogFragment {
             //为了不重复显示dialog，在显示对话框之前移除正在显示的对话框
             mTransaction.remove(mFragment);
         }
-        computeOffset(anchorView);
+        x = offsetX;
+        y = offsetY;
         show(mTransaction, tag);
+    }
+
+    public void showAsDropDown(AppCompatActivity activity, View anchorView, String tag, int gravity, int offsetX, int offsetY) {
+        mGravity = gravity;
+        mIsDropdown = true;
+        if (activity == null || isShowing()) {
+            return;
+        }
+        FragmentManager manager = activity.getSupportFragmentManager();
+        FragmentTransaction mTransaction = manager.beginTransaction();
+        Fragment mFragment = manager.findFragmentByTag(tag);
+        if (mFragment != null) {
+            //为了不重复显示dialog，在显示对话框之前移除正在显示的对话框
+            mTransaction.remove(mFragment);
+        }
+        computeOffset(anchorView, offsetX, offsetY);
+        show(mTransaction, tag);
+    }
+
+    public void showAsDropDown(AppCompatActivity activity, View anchorView, String tag) {
+        showAsDropDown(activity, anchorView, tag, Gravity.LEFT, 0, 0);
     }
 
     /**
@@ -111,30 +137,30 @@ public abstract class ProDialog extends DialogFragment {
      *
      * @param anchorView 弹出窗口锁定的视图
      */
-    private void computeOffset(View anchorView) {
+    private void computeOffset(View anchorView, int offsetX, int offsetY) {
         Rect rect = new Rect();
         anchorView.getGlobalVisibleRect(rect);
         switch (mGravity) {
             case Gravity.CENTER:
-                offsetX = rect.left + anchorView.getWidth() / 2;
-                offsetY = rect.bottom;
+                this.offsetX = rect.left + anchorView.getWidth() / 2 + offsetX;
+                this.offsetY = rect.bottom + offsetY;
                 anchorView.getWindowVisibleDisplayFrame(rect);
-                offsetY -= rect.top;
+                this.offsetY -= rect.top;
                 break;
             case Gravity.END:
             case Gravity.RIGHT:
-                offsetX = rect.right;
-                offsetY = rect.bottom;
+                this.offsetX = rect.right + offsetX;
+                this.offsetY = rect.bottom + offsetY;
                 anchorView.getWindowVisibleDisplayFrame(rect);
-                offsetY -= rect.top;
+                this.offsetY -= rect.top;
                 break;
             case Gravity.START:
             case Gravity.LEFT:
             default:
-                offsetX = rect.left;
-                offsetY = rect.bottom;
+                this.offsetX = rect.left + offsetX;
+                this.offsetY = rect.bottom + offsetY;
                 anchorView.getWindowVisibleDisplayFrame(rect);
-                offsetY -= rect.top;
+                this.offsetY -= rect.top;
                 break;
         }
     }

@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.kuro.proui.ScreenUtil;
+import com.kuro.proui.util.ScreenUtil;
 
 /**
  * @author kuro

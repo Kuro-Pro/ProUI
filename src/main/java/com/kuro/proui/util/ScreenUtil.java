@@ -1,4 +1,4 @@
-package com.kuro.proui;
+package com.kuro.proui.util;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
